@@ -17,8 +17,8 @@ function App(){
             <div id="page-body">
             <Routes>
                 <Route path="/" element={<HomePage/>}></Route>
-                <Route path="/articles" element={<ArticlesListPage/>}></Route>
-                <Route path="/article" element={<ArticlePage/>}></Route>
+                <Route path="/articles/" element={<ArticlesListPage/>}></Route>
+                <Route path="/article/:articleId" element={<ArticlePage/>}></Route>
                 <Route path="/about" element={<AboutPage/>}></Route>
                 <Route path="*" element={<NotFoundPage/>}></Route>
             </Routes>
