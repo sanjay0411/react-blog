@@ -3,17 +3,23 @@ import express from 'express';
 let articleInfo=[
     {
        name:'split.js',
-       likes:0
+       likes:0,
+       comments:[]
     },
     {
         name:'map.js',
-        likes:0
+        likes:0,
+        comments:[]
     },
     {
         name:'filter.js',
-        likes:0
+        likes:0,
+        comments:[]
+
     }
 ]
+
+const findArticle=(name)=>articleInfo.find((article)=>article.name);
 
 const app = express();
 app.use(express.json());
@@ -27,7 +33,22 @@ app.put('/api/articles/:name/likes',(req,res)=>{
     }
     else
     {
-        res.send(`Not Found`);
+        res.send(`Not Found!`);
+    }
+});
+
+app.post('/api/articles/:name/comment',(req,res)=>{
+    const {name}=req.params;
+    const {by,comment}=req.body;
+    
+    const article=findArticle(name);
+    if (article){
+        article.comments.push({by,comment});
+        res.send(article.comments);
+    }
+    else
+    {
+        res.send(`Article Doesn't Exist!!`);
     }
 });
 
