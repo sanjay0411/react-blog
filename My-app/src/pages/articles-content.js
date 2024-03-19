@@ -21,5 +21,5 @@ const articles=[
                   "Hi this is Third article first content"],
     }
 
-]
+];
 export default articles;

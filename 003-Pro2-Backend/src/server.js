@@ -1,35 +1,27 @@
 import express from 'express';
 
-let articleInfo=[
-    {
-       name:'split.js',
-       likes:0,
-       comments:[]
-    },
-    {
-        name:'map.js',
-        likes:0,
-        comments:[]
-    },
-    {
-        name:'filter.js',
-        likes:0,
-        comments:[]
+import {db,connectToDb}  from './db.js';
 
-    }
-]
-
-const findArticle=(name)=>articleInfo.find((article)=>article.name);
-
-const app = express();
+const app = express(); 
 app.use(express.json());
 
-app.put('/api/articles/:name/likes',(req,res)=>{
+app.get('/api/articles/:name',async(req,res)=>{
     const {name}=req.params;
-    const article=articleInfo.find(article=>article.name===name);
+    const article = await db.collection("articles").findOne({name});
+
+    if(article){ 
+        res.json(article);
+    }else{
+        res.sendStatus(404);
+    }
+});
+
+app.put('/api/articles/:name/likes',async(req,res)=>{
+    const {name}=req.params;
+    await db.collection("articles").updateOne({name},{$inc:{likes:1}});
+    const article=await db.collection("articles").findOne({name});
     if (article){
-        article.likes +=1;
-        res.send(`The article ${article.name} has ${article.likes} likes!`);
+        res.json(article);
     }
     else
     {
@@ -37,21 +29,22 @@ app.put('/api/articles/:name/likes',(req,res)=>{
     }
 });
 
-app.post('/api/articles/:name/comment',(req,res)=>{
+app.post("/api/articles/:name/comments", async (req,res)=>{
     const {name}=req.params;
-    const {by,comment}=req.body;
-    
-    const article=findArticle(name);
-    if (article){
-        article.comments.push({by,comment});
-        res.send(article.comments);
-    }
-    else
-    {
-        res.send(`Article Doesn't Exist!!`);
+    const {by,comment} = req.body;
+    await db.collection("articles").updateOne({name},{$push: {comments:{by,comment}}}); 
+
+    const article = await db.collection("articles").findOne({name});
+    if(article){
+        res.json(article);
+    }else{
+        res.send("Not Found!")
     }
 });
 
-app.listen(8000,()=>{
-    console.log("listening on 8000........");
-}); 
+connectToDb(()=>{
+    console.log("successfully connected to database");
+    app.listen(8000,()=>{
+        console.log("listening on 8000 http://localhost:8000");
+    });
+});
